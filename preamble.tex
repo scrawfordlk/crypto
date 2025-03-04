@@ -1,0 +1,42 @@
+\documentclass[
+    pdftex,
+    12pt,
+    parskip=half,
+    a4paper
+]{scrartcl}
+\author{Crawford, Sam}
+\title{Einführung in Kryptographie und IT-Sicherheit}
+
+\usepackage[utf8]{inputenc}
+\usepackage[naustrian]{babel}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Define color scheme
+\definecolor{codeblue}{rgb}{0.13, 0.13, 0.75}
+\definecolor{codegreen}{rgb}{0, 0.5, 0}
+\definecolor{codered}{rgb}{0.75, 0.13, 0.13}
+\definecolor{codegray}{rgb}{0.5, 0.5, 0.5}
+\definecolor{backgray}{rgb}{0.95, 0.95, 0.95}
+
+% Define Python style for listings
+\lstdefinestyle{pythonstyle}{
+    language=Python,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{codeblue}\bfseries,
+    stringstyle=\color{codered},
+    commentstyle=\color{codegreen}\itshape,
+    numberstyle=\tiny\color{codegray},
+    numbers=left,
+    stepnumber=1,
+    numbersep=10pt,
+    backgroundcolor=\color{backgray},
+    showspaces=false,
+    showstringspaces=false,
+    frame=single,
+    tabsize=3,
+    breaklines=true,
+    breakatwhitespace=true,
+}
+\lstset{style=pythonstyle}
