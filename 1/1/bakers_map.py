@@ -25,14 +25,16 @@ def encrypt_image(image, iterations=1):
     encrypted_image = image.copy()
 
     for _ in range(iterations):
-        current_image = image.copy()
+        temp_image = encrypted_image.copy()
+
         for y in range(height):
             for x in range(width):
                 if x < width / 2:
-                    current_image[2 * x][y // 2] = image[x][y]
+                    temp_image[2 * x][y // 2] = encrypted_image[x][y]
                 else:
-                    current_image[2 * x - 1][(y + 1) // 2] = image[x][y]
-        encrypted_image = current_image
+                    temp_image[2 * x - 1][(y + 1) // 2] = encrypted_image[x][y]
+        encrypted_image = temp_image
+
     return encrypted_image
 
 
