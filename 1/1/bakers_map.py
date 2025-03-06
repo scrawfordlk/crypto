@@ -1,5 +1,5 @@
-# zypper in python311-opencv python311-numpy
-import cv2, numpy, time
+# zypper in python311-opencv-devel python311-numpy-devel python311-scikit-image
+import cv2
 import skimage.measure
 
 
