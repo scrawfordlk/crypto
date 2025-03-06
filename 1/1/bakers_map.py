@@ -4,36 +4,44 @@ import skimage.measure
 
 
 def main():
-    image = cv2.imread("forest.jpg")
-    cv2.imshow("Title of image", image)
+    image = cv2.imread("flower.jpg")
+    cv2.imshow("Baker's Map Encryption", image)
     cv2.waitKey(0)
 
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    cv2.imshow("Title of image", gray_image)
-    key = cv2.waitKey(0)
-    if key == ord("q"):
-        cv2.destroyAllWindows()
+    cv2.imshow("Baker's Map Encryption", gray_image)
+    cv2.waitKey(0)
 
     print("Entropy of initial image: " + str(measure_entropy(gray_image)))
-    encrypted_image = encrypt_image(gray_image)
-    cv2.imshow("Encrypted image", encrypted_image)
-    print("New entropy: " + str(measure_entropy(encrypt_image(image))))
+
+    i = 1
+    while True:
+        encrypted_image = encrypt_image(gray_image, i)
+        print("New entropy: " + str(measure_entropy(encrypted_image)))
+        cv2.imshow("Baker's Map Encryption", encrypted_image)
+        key = cv2.waitKey(0)
+        if key == ord("n"):
+            i += 1
+            continue
+        elif key == ord("q"):
+            cv2.destroyAllWindows()
+            exit()
 
 
 def encrypt_image(image, iterations=1):
-    height, width = image.shape()
+    length, _ = image.shape
     encrypted_image = image.copy()
 
     for _ in range(iterations):
-        temp_image = encrypted_image.copy()
+        temp_img = encrypted_image.copy()
 
-        for y in range(height):
-            for x in range(width):
-                if x < width / 2:
-                    temp_image[2 * x][y // 2] = encrypted_image[x][y]
+        for x in range(length):
+            for y in range(length):
+                if x < length / 2:
+                    temp_img[2 * x][y // 2] = encrypted_image[x][y]
                 else:
-                    temp_image[2 * x - 1][(y + 1) // 2] = encrypted_image[x][y]
-        encrypted_image = temp_image
+                    temp_img[2 * x - length][(y + length) // 2] = encrypted_image[x][y]
+        encrypted_image = temp_img
 
     return encrypted_image
 
