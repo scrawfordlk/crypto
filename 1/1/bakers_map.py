@@ -14,7 +14,26 @@ def main():
     if key == ord("q"):
         cv2.destroyAllWindows()
 
-    print(measure_entropy(gray_image))
+    print("Entropy of initial image: " + measure_entropy(gray_image))
+    encrypted_image = encrypt_image(gray_image)
+    cv2.imshow("Encrypted image", encrypted_image)
+    print("New entropy: " + measure_entropy(encrypt_image(image)))
+
+
+def encrypt_image(image, iterations=1):
+    height, width = image.shape()
+    encrypted_image = image.copy()
+
+    for _ in range(iterations):
+        current_image = image.copy()
+        for y in range(height):
+            for x in range(width):
+                if x < width / 2:
+                    current_image[2 * x][y // 2] = image[x][y]
+                else:
+                    current_image[2 * x - 1][(y + 1) // 2] = image[x][y]
+        encrypted_image = current_image
+    return encrypted_image
 
 
 def measure_entropy(image):
