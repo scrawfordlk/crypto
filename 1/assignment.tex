@@ -114,27 +114,181 @@ def decrypt_image(nonces, key, image):
 Die Funktionsweise ist analog zu \lstinline{encrypt_image()}. Die 2D-Arrays werden in 1D-Arrays umgewandelt. Dann wird für alle
 16 Bytes diese 16 Bytes mithilfe des Schlüssels und der nonces entschlüsselt. Anschließend werden diese entschlüsselten Bytes
 bei dem neuen 1D-Array entsprechend ihrer ursprünglichen Positionen gesetzt. Als Letztes wird dann dieses entschlüsselte 1D-Array
-in ein 2D-Bild-Array zurückgewandelt.
+in ein 2D-Bild-Array zurückgewandelt und man hat somit das verschlüsselte Bild entschlüsselt.
 
-Man siehe nun die folgenden Bilder, auf denen diese 
-Verschlüsselung angewendet wurde:
+\subsection{Verschlüsseln von 10 Bildern}
+Für konkrete Beispiele mit den jeweiligen Entropien, siehe Abbildungen \ref{fig:cat} bis \ref{fig:sky}.
+
+\subsection{Zeitbedarf der Verschlüsselung}
 
 \begin{figure}
 	\centering
 
-	\begin{subfigure}{0.4\textwidth}
+	\begin{subfigure}{0.35\textwidth}
 		\includegraphics[width=\textwidth]{3/gray_7.055047578254635_cat.jpg}
 		\caption{Entropie: 7.055047578254635}
-		\label{figcat:first}
 	\end{subfigure}
 	\hfill
-	\begin{subfigure}{0.4\textwidth}
-		\includegraphics[width=\textwidth]{../1/3/encrypted_7.999184881574807_cat.jpg}
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/encrypted_7.999306298374896_cat.jpg}
 		\caption{Entropie: 7.999184881574807}
-		\label{figcat:second}
 	\end{subfigure}
 
-	\caption{Bild vor (links) und nach (rechts) Verschlüsselung}\label{fig:}
+	\caption{Bild vor (links) und nach (rechts) Verschlüsselung}
+	\label{fig:cat}
+\end{figure}
+
+\begin{figure}
+	\centering
+
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/gray_5.489817933250877_flower.jpg}
+		\caption{Entropie: 5.489817933250877}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/encrypted_7.999228181754879_flower.jpg}
+		\caption{Entropie: 7.999228181754879}
+	\end{subfigure}
+
+	\caption{Bild vor (links) und nach (rechts) Verschlüsselung}
+	\label{fig:flower}
+\end{figure}
+
+\begin{figure}
+	\centering
+
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/gray_6.176106420718194_meme_man.png}
+		\caption{Entropie: 6.176106420718194}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/encrypted_7.9994342031643875_meme_man.png}
+		\caption{Entropie: 7.999434203164387}
+	\end{subfigure}
+
+	\caption{Bild vor (links) und nach (rechts) Verschlüsselung}
+	\label{fig:meme_man}
+\end{figure}
+
+\begin{figure}
+	\centering
+
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/gray_1.968975268089162_spheal.png}
+		\caption{Entropie: 1.968975268089162}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/encrypted_7.999230248060936_spheal.png}
+		\caption{Entropie: 7.999230248060936}
+	\end{subfigure}
+
+	\caption{Bild vor (links) und nach (rechts) Verschlüsselung}
+	\label{fig:spheal}
+\end{figure}
+
+\begin{figure}
+	\centering
+
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/gray_4.1555418953746175_frog.jpg}
+		\caption{Entropie: 4.155541895374617}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/encrypted_7.99926694689182_frog.jpg}
+		\caption{Entropie: 7.99926694689182}
+	\end{subfigure}
+
+	\caption{Bild vor (links) und nach (rechts) Verschlüsselung}
+	\label{fig:frog}
+\end{figure}
+
+\begin{figure}
+	\centering
+
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/gray_6.761302835772753_synthwave.jpg}
+		\caption{Entropie: 6.761302835772753}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/encrypted_7.999284747927613_synthwave.jpg}
+		\caption{Entropie: 7.999284747927613}
+	\end{subfigure}
+
+	\caption{Bild vor (links) und nach (rechts) Verschlüsselung}
+	\label{fig:synthwave}
+\end{figure}
+
+\begin{figure}
+	\centering
+
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/gray_7.2193250947721515_fantasy_tree.jpg}
+		\caption{Entropie: 7.219325094772151}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/encrypted_7.999340174814104_fantasy_tree.jpg}
+		\caption{Entropie: 7.999340174814104}
+	\end{subfigure}
+
+	\caption{Bild vor (links) und nach (rechts) Verschlüsselung}
+	\label{fig:fantasy}
+\end{figure}
+
+\begin{figure}
+	\centering
+
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/gray_7.228465731556658_city.jpg}
+		\caption{Entropie: 7.228465731556658}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/encrypted_7.999378267461962_city.jpg}
+		\caption{Entropie: 7.999378267461962}
+	\end{subfigure}
+
+	\caption{Bild vor (links) und nach (rechts) Verschlüsselung}
+	\label{fig:city}
+\end{figure}
+
+\begin{figure}
+	\centering
+
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/gray_6.920844020928125_pikachu.jpg}
+		\caption{Entropie: 6.920844020928125}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/encrypted_7.999482477476632_pikachu.jpg}
+		\caption{Entropie: 7.999482477476632}
+	\end{subfigure}
+
+	\caption{Bild vor (links) und nach (rechts) Verschlüsselung}
+	\label{fig:pika}
+\end{figure}
+
+\begin{figure}
+	\centering
+
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/gray_6.636128377207226_planet_sky.jpg}
+		\caption{Entropie: 6.636128377207226}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.35\textwidth}
+		\includegraphics[width=\textwidth]{../1/3/encrypted_7.9992924900783855_planet_sky.jpg}
+		\caption{Entropie: 7.999292490078385}
+	\end{subfigure}
+
+	\caption{Bild vor (links) und nach (rechts) Verschlüsselung}
+	\label{fig:sky}
 \end{figure}
 
 
