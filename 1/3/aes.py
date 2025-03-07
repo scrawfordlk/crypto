@@ -27,15 +27,13 @@ def encrypt_image(key, image):
     flat_original = image.flatten()
     flat_encrypted = flat_original.copy()
     nonces = []
-    tags = []
 
     for i in range(0, len(flat_original), 16):
         cipher = AES.new(key, AES.MODE_EAX)
         nonces.append(cipher.nonce)
         pixels = flat_original[i : i + 16]
 
-        encrypted_bytes, tag = cipher.encrypt_and_digest(b"".join(pixels))
-        tags.append(tag)
+        encrypted_bytes = cipher.encrypt(b"".join(pixels))
 
         for j in range(16):
             flat_encrypted[i + j] = encrypted_bytes[j]
