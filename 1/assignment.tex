@@ -1,11 +1,34 @@
 \input{../preamble}
+\usepackage[naustrian]{babel}
 
 \begin{document}
 \maketitle
 
-\section{Aufgabe}
+\section{Implementierung der Baker's Map}
 % \lstinputlisting[style=pythonstyle, caption=This is code]{test.py}
 
+\section{Chaos-basierte Bildverschlüsselung und Entschlüsselung}
+\subsection{Motivation}
+Für die Verschlüsselung von Bildern wird eine Methode benötigt, die den Inhalt
+versteckt. Bilder bestehen aus einer Struktur von Pixeln, d.h. es ist relevant welche Pixel neben welchen
+Pixeln liegen. Weiters weisen Bilder eine hohe Redundanz auf. Traditionelle Verschlüsselungsmethoden beachten
+diese Aspekte bei Bildern nicht wirklich und somit ist eine andere Verschlüsselungsmethode erforderlich.
+Chaos-basierte Verschlüsselung ist deterministisch, hat eine hohe Ergodizidät, d.h. es werden praktisch alle
+möglichen Zustände des Systems über einen längeren Zeitraum angenommen, und weist Pseudo-Zufälligkeit auf. Außerdem
+sind sie sehr sensibel zu den Ausgangsbedingungen, d.h. kleine Veränderungen der Ausgangsbedingungen führen zu
+sehr anderen Ergebnissen. Das bedeutet, dass aufgrund der Komplexität solcher Systeme es schwer ist,
+das Verhalten vorherzusehen.
+Somit sind chaos-basierte Verschlüsselungen von Vorteil für die Verschlüsselung von Bildern.
+\cite{zhang2023}
+
+\subsection{Funktionsweise}
+\cite{IEEEMap}
+
+
+
+\subsubsection{Baker Map}
+
+\subsubsection{Cat Map}
 \bibliography{lit}
 \bibliographystyle{alpha}
 \end{document}
