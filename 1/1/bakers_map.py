@@ -22,7 +22,8 @@ def main():
         key = cv2.waitKey(0)
         if key == ord("n"):
             i += 1
-            continue
+        elif key == ord("b"):
+            i -= 1
         elif key == ord("q"):
             cv2.destroyAllWindows()
             exit()
