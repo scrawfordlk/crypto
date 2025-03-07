@@ -4,7 +4,7 @@
 \begin{document}
 \maketitle
 
-\section{Implementierung der Baker's Map}
+\section{Implementierung der Baker Map}
 % \lstinputlisting[style=pythonstyle, caption=This is code]{test.py}
 
 \section{Chaos-basierte Bildverschlüsselung und Entschlüsselung}
@@ -22,13 +22,41 @@ Somit sind chaos-basierte Verschlüsselungen von Vorteil für die Verschlüsselu
 \cite{zhang2023}
 
 \subsection{Funktionsweise}
+Die chaos-basierte Verschlüsselung nutzt eine chaotische Abbildung wie die Baker Map oder Cat Map. Beide bilden
+einen 2-dimensionalen Einheitsquadrat auf sich selber ab. Der Grund warum diese Abbildungen gewählt werden ist, da
+sie relativ simpel sind und somit schnell verschlüsselt/enschlüsselt werden kann. 
+Eine solche Abbildung wird dann im nächsten Schritt generalisiert, indem Parameter zur Abbildung hinzugefügt werden.
+Danach wird sie diskretisiert, denn ein Bild besteht aus diskreten Pixeln. Das bedeutet, dass die Abbildung so
+modifiziert wird, sodass sie nicht mehr ein Einheitsquadrat auf sich selbst abbilden, sondern ein 2-dimensionales quadratisches
+Bild bestehend aus Pixeln auf sich selber abbildet. So eine Abbildung bestimmt also eine Bijektion zwischen den einzelnen Pixeln
+quadratischer Bilder, sodass eine Permutation der Pixel berechnet werden kann. Anschließend wird die Abbildung auf 3 Dimensionen erweitert,
+sodass einzelne Pixel Werte modifiziert werden. Schlussendlich wird dann eine Diffusion noch angewendet als Komposition zur bestehenden
+Abbildung.
 \cite{IEEEMap}
 
-
+Zur Entschlüsselung wird dann die inverse Baker Map verwendet, sodass man das Ursprungsbild wieder erhaltet nach gleich vielen Iterationen.
 
 \subsubsection{Baker Map}
+Die Baker Map ist eine chaotische Abbildung des Einheitsquadrates $I \times I$ auf sich selbst, die formell folgendermaßen beschrieben wird:
+$$B(x, y) = (2x, \frac{y}{2}) \text{ if } x < \frac{1}{2}$$
+$$B(x, y) = (2x - 1, \frac{y + 1}{2}) \text{ if } \frac{1}{2} \leq x \leq 1$$
+Wobei $x$ und $y$ die Koordinaten sind.
+In Worten ist die Baker Map eine Abbildung, die einen Einheitsquadrat so auf sich selbst abbildet: Als erstes wird er vertikal in zwei Rechtecken
+aufgeteilt. Dann werden diese langgestreckt, sodass die Höhe sich halbiert. Anschließend wird eine der Hälften auf die andere gelegt. Diesen
+Prozess kann man mit der Arbeit eines Bäckers beim Kneten von Teig vergleichen, daher der Name.
+\cite{IEEEMap}
 
 \subsubsection{Cat Map}
+Die standard Cat Map, die ein quadratisches Bild $N \times N$ auf sich selbst abbildet, ist folgendermaßen definiert:
+$$
+	\begin{bmatrix} x' \\ y' \end{bmatrix} =
+	\begin{bmatrix} 1 & 1 \\ 1 & 2 \end{bmatrix}
+	\begin{bmatrix} x \\ y \end{bmatrix} (\mod N)
+$$
+Wobei $x, y \in \{0, 1, \dots , N - 1 \}$, $(x, y)$ ist ein Pixel des Originalbildes und $(x', y')$ ist das abgebildete Pixel.
+\cite{catmap}
+
+\section{}
 \bibliography{lit}
 \bibliographystyle{alpha}
 \end{document}
