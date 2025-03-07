@@ -120,6 +120,31 @@ in ein 2D-Bild-Array zurückgewandelt und man hat somit das verschlüsselte Bild
 Für konkrete Beispiele mit den jeweiligen Entropien, siehe Abbildungen \ref{fig:cat} bis \ref{fig:sky}.
 
 \subsection{Zeitbedarf der Verschlüsselung}
+Was den Zeitbedarf der Verschlüsselung betrifft: Die Ausführung des Programms dauert im Durchschnitt
+$1.974$ Sekunden. Die Tabelle \ref{tab:speed3} gibt die konkreten Werte pro Bild an, wobei die Zahlen
+die Ordnung der Bilder repräsentieren:
+\begin{table}
+	\begin{center}
+		\begin{tabular}{ |c|c|c| } 
+		\hline
+		Bild & Zeit (in Sekunden) \\
+		\hline
+		1 & 2.00 \\
+		2 & 1.97\\
+		3 & 1.98\\
+		4 & 1.96\\
+		5 & 1.96\\
+		6 & 1.94\\
+		7 & 1.97\\
+		8 & 1.97\\
+		9 & 2.01\\
+		10 & 1.98\\
+		\hline
+		\end{tabular}
+	\end{center}
+	\caption{Die individuellen Zeiten um ein Bild zu verschlüsseln}
+	\label{tab:speed3}
+\end{table}
 
 \begin{figure}
 	\centering
