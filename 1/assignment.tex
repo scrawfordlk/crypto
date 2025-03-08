@@ -24,7 +24,7 @@ das Verhalten vorherzusehen.
 Somit sind chaos-basierte Verschlüsselungen von Vorteil für die Verschlüsselung von Bildern.
 \cite{zhang2023}
 
-\subsection{Funktionsweise}
+\subsection{Funktionsweise} % TODO: make it fit with below subsections
 Die chaos-basierte Verschlüsselung nutzt eine chaotische Abbildung wie die Baker Map oder Cat Map. Beide bilden
 einen 2-dimensionalen Einheitsquadrat auf sich selber ab. Der Grund warum diese Abbildungen gewählt werden ist, da
 sie relativ simpel sind und somit schnell verschlüsselt/enschlüsselt werden kann. 
@@ -39,28 +39,33 @@ Abbildung.
 
 Zur Entschlüsselung wird dann die inverse Baker Map verwendet, sodass man das Ursprungsbild wieder erhaltet nach gleich vielen Iterationen.
 
-\subsubsection{Baker Map}
-Die Baker Map ist eine chaotische Abbildung des Einheitsquadrates $I \times I$ auf sich selbst, die formell folgendermaßen beschrieben wird:
-$$B(x, y) = (2x, \frac{y}{2}) \text{ if }  0 \leq x < \frac{1}{2}$$
-$$B(x, y) = (2x - 1, \frac{y + 1}{2}) \text{ if } \frac{1}{2} \leq x \leq 1$$
-Wobei $x$ und $y$ die Koordinaten sind.
-In Worten ist die Baker Map eine Abbildung, die einen Einheitsquadrat so auf sich selbst abbildet: Als erstes wird er vertikal in zwei Rechtecken
-aufgeteilt. Dann werden diese langgestreckt, sodass die Höhe sich halbiert. Anschließend wird eine der Hälften auf die andere gelegt. Diesen
-Prozess kann man mit der Arbeit eines Bäckers beim Kneten von Teig vergleichen, daher der Name.
-\cite{IEEEMap}
-
 \subsubsection{Cat Map}
-Die standard Cat Map, die ein quadratisches Bild $N \times N$ auf sich selbst abbildet, ist folgendermaßen definiert:
+Die generalisierte Cat Map Transformation $\Gamma$ ist folgendermaßen definiert:
 $$
-	\begin{bmatrix} x' \\ y' \end{bmatrix} =
-	\begin{bmatrix} 1 & 1 \\ 1 & 2 \end{bmatrix}
-	\begin{bmatrix} x \\ y \end{bmatrix} (\mod N)
+	\Gamma:
+	\begin{bmatrix} x \\ y \end{bmatrix} \rightarrow
+	\begin{bmatrix} 1 & p \\ q & pq + 1 \end{bmatrix}
+	\begin{bmatrix} x \\ y \end{bmatrix} \text{ mod } n
 $$
-Wobei $x, y \in \{0, 1, \dots , N - 1 \}$, $(x, y)$ ist ein Pixel des Originalbildes und $(x', y')$ ist das abgebildete Pixel.
-\cite{catmap}
+Wobei $X = \begin{bmatrix} x & y \end{bmatrix}^T$ ein Pixel von einem $n \times n$ Bild mit $1 \leq x \land y \leq n$.
+Dabei sind $p \geq 1$ und $q \geq 1$ Teil des Schlüssels mit $t$, wobei $t$ die Anzahl der Iterationen entspricht. \cite{chaos}
+
+\subsubsection{Baker's Map}
+Die Baker's Map ist eine chaotische Abbildung, die das Bild $N \times N$ vertikal teilt, horizontal streckt und die Teile aufeinander stapelt, ähnlich
+wie ein Bäcker mit Teig umgeht, daher der Name. Der Schlüssel hier ist durch die Anzahl an Rechtecke und die Position der Teilungen gegeben. \cite{chaos}
+
+Die Abbildung funktioniert folgendermaßen: Man definiere zuerst $n_1, n_2, \dots , n_k$, wobei $k$ die Anzahl der aufgeteilten Teile entspricht.
+Dabei muss $\forall i \in \{1, 2, \dots, k\} : n_i | N$ und $\sum_{i = 1}^{k} n_i = N$ gelten. Sei weiter $N_i \coloneq \sum_{j = 1}^{i} n_j$ und $q_i \coloneq N/n_i$.
+Betrachte nun ein Pixel ($r$, $s$) mit $N_{i - 1} \leq r < N_i$ und $0 \leq s < N$. Dieses Pixel wird abgebildet auf:
+$$B(r, s) =  (q_i(r - N_i) + (s \text{ mod } q_i), \frac{s - (s \text{ mod } q_i)}{q_i + N_i})$$
+Dieser Algorithmus ist verantwortlich für eine Permutation der Pixel. Um die Grauwerte der Pixel auch zu verändern, kann ein Substitutionsschritt
+eingeführt werden, der den Grauwert $g_{rs}$ eines Pixels beim Abbilden ändert auf $h(r, s, g_{rs})$, wobei $h$ folgende Funktion ist:
+$$h(r, s, g_{rs}) = (g_{rs} + r \cdot s) \text{ mod } L$$
+Dabei ist $L$ die Anzahl an Grauwerten.
+\cite{chaos}
 
 \section{Verschlüsselung mit AES}
-Für die Verschlüsselung wurde PyCryptdome verwendet.
+Für die Verschlüsselung wurde PyCryptdome verwendet. Bilder werden mit OpenCV behandelt.
 Dies ist der Programmcode, für die Verschlüsselungsfunktion:
 \begin{lstlisting}
 import cv2
@@ -338,21 +343,33 @@ der Ordnung der Bilder entsprechen.
 \end{figure}
 
 
-\section{Artikel: Deprecating Motivation and Empirical Security Analysis of Chaos-based Image and Video Encryption}
-Im Artikel \cite{chaos}
-Main Motivationen für chaos-basierte Verschlüsselung wird in Frage gestellt. (less computational effort (than eg. AES) and security benefits)
-=> chaos-basierte Bildverschlüsselung ist nicht wirklich besser als traditionelle Methoden.
+\section{Artikel lesen/erklären}
+Die Autoren dieses Artikels, siehe \cite{chaos}, sind der Meinung, dass Chaos-basierte Bildverschlüsselung
+unseriös/ungeeignet ist. Die Punkte, die sie kritisieren, sind folgende:
 
-\subsection{Reduzierter Rechenaufwand}
-Sie zeigen in einem Experiment, dass dies nicht der Fall ist und dass chaos-basierte Verschlüsselung sogar
-mehr Rechenaufwand aufweisen kann. Verglichen wurden die populärsten chaos-basierten Bildverschlüsselungen, die sie
-selber implementiert haben, mit
-konventionellen AES Verschlüsselungen aus Libraries. Sie glauben sogar, dass chaos-basierte Verschlüsselung nicht einmal die Effizienz von
-traditionellen Methoden erreichen kann.
+Eines der Motivationen von Chaos-basierter Bildverschlüsselung ist der behauptete geringere Rechenaufwand.
+Ein Vorteil von solcher Verschlüsselung sei, dass es weniger Rechenarbeit als andere schon bestehende
+Verfahren wie z.B. AES, das in \cite{chaos} als Vergleich hergenommen wurde, benötigt. In ihren Experimenten
+zeigen sie aber sogar das Gegenteil: Chaos-basierte Verschlüsselungsmethoden sind nicht effizienter und oft
+nicht ansatzweise so schnell wie traditionelle Methoden aus hochoptimierten kryptografischen Libraries. Die Autoren
+schätzen auch ein, dass dies sich nicht ändern wird.
 
-\subsection{Security Vorteile}
+Eine weitere Motivation von Chaos-basierter Bildverschlüsselung ist bezogen auf die daraus resultierende Sicherheit.
+Laut \cite{chaos} wird in vielen Publikationen behauptet, dass Bilder eine hohe Redundanz aufweisen, d.h. dass Information vorhersehbar oder
+stark wiederholt wird und dass das nicht bei konventionellen Methoden beachtet wird. Dem widersprechen aber die Autoren von \cite{chaos},
+solange man beispielsweise bei AES Modi verwendet, die dies beachten, da die Verschlüsselung unabhängig vom Originalmaterial ist. (Sie nennen
+CBC, OFB und Counter Mode)
 
+Vor allem aber kritisieren sie die Publikationen, die ein neues Verfahren vorstellen, das sie
+nur experimentell ``beweisen'', indem z.B. Entropien gemessen werden
+oder Grayscale-Histogramme betrachtet werden. Ein weiterer Punkt ist meist die kleine Menge an Bildern, an welchen diese Experimente durchgeführt werden.
 
+Die Autoren aus \cite{chaos} kritisieren diese Tests vor allem, da sie so verwendet werden, als wären sie ausreichend für eine hohe Sicherheit, obwohl
+sie eigentlich eine Grundbedingung für eine hohe Sicherheit sind. Es gibt einige konkrete Fälle, bei welchen ein Verfahren nach dem Durchlaufen
+von solcher Tests als sicher eingestuft wurde, nur um ein Jahr später durch bereits bekannte Verfahren geknackt zu werden.
+
+Somit kritisieren die Autoren von \cite{chaos} nicht nur die Verschlüsselungsmethoden selber, sondern auch die Arbeitsweise von denjenigen, die
+diese Verfahren vorstellen.
 
 \section{Fehlerkorrektur mit Hammingcodes}
 \subsection{Funktionsweise}
