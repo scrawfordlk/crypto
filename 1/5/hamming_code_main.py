@@ -1,9 +1,10 @@
 import hamming
 from bitarray import bitarray
+import sys
 
 
 def main():
-    msg = bitarray("1101")
+    msg = bitarray(sys.argv[1])
     print(f"Original Bits: {msg}")
     print()
 
@@ -24,4 +25,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) != 2:
+        exit()
+    else:
+        main()
