@@ -8,29 +8,29 @@ import sys
 def main():
     image = cv2.imread(sys.argv[1])
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # show_image_with_entropy(image)
+    show_image_with_entropy(image)
     entropy = measure_entropy(image)
-    store_image("gray_" + str(entropy) + "_" + sys.argv[1], image)
+    # store_image("gray_" + str(entropy) + "_" + sys.argv[1], image)
 
     cipher_key = b"my 16 byte key!!"
-    nonces, encrypted_image = encrypt_image(cipher_key, image)
-    # show_image_with_entropy(encrypted_image)
+    ivs, encrypted_image = encrypt_image(cipher_key, image)
+    show_image_with_entropy(encrypted_image)
     entropy = measure_entropy(encrypted_image)
-    store_image("encrypted_" + str(entropy) + "_" + sys.argv[1], encrypted_image)
+    # store_image("encrypted_" + str(entropy) + "_" + sys.argv[1], encrypted_image)
 
-    # decrypted_image = decrypt_image(nonces, cipher_key, encrypted_image)
-    # show_image_with_entropy(decrypted_image)
+    decrypted_image = decrypt_image(ivs, cipher_key, encrypted_image)
+    show_image_with_entropy(decrypted_image)
 
 
 def encrypt_image(key, image):
     width, height = image.shape
     flat_original = image.flatten()
     flat_encrypted = flat_original.copy()
-    nonces = []
+    ivs = []
 
     for i in range(0, len(flat_original), 16):
-        cipher = AES.new(key, AES.MODE_EAX)
-        nonces.append(cipher.nonce)
+        cipher = AES.new(key, AES.MODE_CBC)
+        ivs.append(cipher.iv)
         pixels = flat_original[i : i + 16]
 
         encrypted_bytes = cipher.encrypt(b"".join(pixels))
@@ -38,16 +38,16 @@ def encrypt_image(key, image):
             flat_encrypted[i + j] = encrypted_bytes[j]
 
     encrypted_image = flat_encrypted.reshape((width, height))
-    return nonces, encrypted_image
+    return ivs, encrypted_image
 
 
-def decrypt_image(nonces, key, image):
+def decrypt_image(ivs, key, image):
     width, height = image.shape
     flat_encrypted = image.flatten()
     flat_decrypted = flat_encrypted.copy()
 
     for i in range(0, len(flat_encrypted), 16):
-        cipher = AES.new(key, AES.MODE_EAX, nonce=nonces[i // 16])
+        cipher = AES.new(key, AES.MODE_CBC, iv=ivs[i // 16])
         pixels = flat_encrypted[i : i + 16]
 
         decrypted_bytes = cipher.decrypt(b"".join(pixels))
