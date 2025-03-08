@@ -23,7 +23,7 @@ def main():
 
 
 def encrypt_image(key, image):
-    length, _ = image.shape
+    width, height = image.shape
     flat_original = image.flatten()
     flat_encrypted = flat_original.copy()
     nonces = []
@@ -34,16 +34,15 @@ def encrypt_image(key, image):
         pixels = flat_original[i : i + 16]
 
         encrypted_bytes = cipher.encrypt(b"".join(pixels))
-
         for j in range(16):
             flat_encrypted[i + j] = encrypted_bytes[j]
 
-    encrypted_image = flat_encrypted.reshape((length, length))
+    encrypted_image = flat_encrypted.reshape((width, height))
     return nonces, encrypted_image
 
 
 def decrypt_image(nonces, key, image):
-    length, _ = image.shape
+    width, height = image.shape
     flat_encrypted = image.flatten()
     flat_decrypted = flat_encrypted.copy()
 
@@ -55,7 +54,7 @@ def decrypt_image(nonces, key, image):
         for j in range(16):
             flat_decrypted[i + j] = decrypted_bytes[j]
 
-    return flat_decrypted.reshape((length, length))
+    return flat_decrypted.reshape((width, height))
 
 
 def measure_entropy(image):
