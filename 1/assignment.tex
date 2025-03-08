@@ -4,8 +4,11 @@
 \begin{document}
 \maketitle
 
-\section{Implementierung der Baker Map}
-% \lstinputlisting[style=pythonstyle, caption=This is code]{test.py}
+\section{Implementierung der Baker's Map}
+Siehe \ref{sec:bakersmap} für eine Baker's Map Erklärung. Die gewählte Programmiersprache ist Python.
+Für Bilder wird die Library OpenCV verwendet. Der Programmcode zur Verschlüsselung ist folgender:
+\begin{lstlisting}
+\end{lstlisting}
 
 \section{Chaos-basierte Bildverschlüsselung und Entschlüsselung}
 \subsection{Motivation}
@@ -50,7 +53,7 @@ $$
 Wobei $X = \begin{bmatrix} x & y \end{bmatrix}^T$ ein Pixel von einem $n \times n$ Bild mit $1 \leq x \land y \leq n$.
 Dabei sind $p \geq 1$ und $q \geq 1$ Teil des Schlüssels mit $t$, wobei $t$ die Anzahl der Iterationen entspricht. \cite{chaos}
 
-\subsubsection{Baker's Map}
+\subsubsection{Baker's Map}\label{sec:bakersmap}
 Die Baker's Map ist eine chaotische Abbildung, die das Bild $N \times N$ vertikal teilt, horizontal streckt und die Teile aufeinander stapelt, ähnlich
 wie ein Bäcker mit Teig umgeht, daher der Name. Der Schlüssel hier ist durch die Anzahl an Rechtecke und die Position der Teilungen gegeben. \cite{chaos}
 
@@ -65,7 +68,8 @@ Dabei ist $L$ die Anzahl an Grauwerten.
 \cite{chaos}
 
 \section{Verschlüsselung mit AES}
-Für die Verschlüsselung wurde PyCryptdome verwendet. Bilder werden mit OpenCV behandelt.
+Die gewählte Programmiersprache ist Python. Für die Verschlüsselung wurde PyCryptdome verwendet.
+Bilder werden mit OpenCV behandelt.
 Dies ist der Programmcode, für die Verschlüsselungsfunktion:
 \begin{lstlisting}
 import cv2
@@ -372,8 +376,30 @@ Somit kritisieren die Autoren von \cite{chaos} nicht nur die Verschlüsselungsme
 diese Verfahren vorstellen.
 
 \section{Fehlerkorrektur mit Hammingcodes}
+
 \subsection{Funktionsweise}
+Ein Hammingcode kann einerseits Fehler erkennen und andererseits auch einen Fehler korrigieren.
+Dies funktioniert folgendermaßen: Einer binären Nachricht der Länge $2^m - m - 1$ wird $m$ redundante Bits
+hinzugefügt, sodass das der Code eine Länge von $2^m - 1$ hat. Die redundanten Bits sind an den $2^n$-ten Stellen positioniert.
+Sei $p_i$ das redundante Bit an der Stelle $2^{i - 1}$. Verwendet werden diese Bits als Paritätsbits, d.h. entweder Even oder Odd Parity.
+Angenommen es wird Even Parity verwendet. Dann wird der Wert eines Paritätsbit bestimmt, indem die Anzahl an 1en aller dazugehörigen Bits
+gezählt wird. Wenn diese ungerade ist, ist das Paritätsbit $1$, sonst $0$. Zu einem Paritätsbit $p_i$ gehören alle Bits an den Stellen
+(beginnend von 1), wo die Binärdarstellung der Stelle eine $1$ an der $i$-ten Stelle aufweist. Beispielsweise gehört zu dem Paritätsbit $p_1$
+jedes Bit an einer ungeraden Stelle, da ungerade Zahlen immer eine 1 an der 1. Stelle aufweisen. Wenn alle zugehörigen Bits mit dem
+Paritätsbit eine gerade Anzahl an 1en haben, dann ist die Even Parity erfüllt. \cite{hamming}
+
+Wenn ein solcher Hammingcode erstellt wurde, kann dieser verschickt werden. Dabei kann es zu Fehlern kommen, also es kommt zu ungewollten
+Bit-Flips. Anhand der Paritätsbits kann man nun feststellen, ob es zu so einem Fehler gekommen ist und bei 1-Bit Fehlern sogar ausbessern. \cite{hamming}
+
+Der Empfänger, der diesen möglicherweise fehlerhaften Code erhaltet, muss erstmal für jedes Paritätsbit überprüfen, ob die Even Parity gilt.
+Wenn nicht, dann hat der Code einen Fehler.
+
+Für die Fehlerkorrektur von einem Bit wird folgendes durchgeführt: Für jedes Paritätsbit wird die Parity berechnet. Wenn sie erfüllt ist, dann
+wird in eine neu zu konstruierende Zahl eine 0 hinzugefügt, sonst eine 1. Dies wird von links nach rechts durchgeführt. Die daraus resultierende
+Binärzahl ist die Stelle, an der der Fehler geschehen ist, somit muss man nur dieses Bit flippen, um den Fehler zu beheben.
+
 \subsection{Beispiel}
+
 
 \bibliography{lit}
 \bibliographystyle{alpha}
