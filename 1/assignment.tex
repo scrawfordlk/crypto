@@ -129,6 +129,8 @@ in ein 2D-Bild-Array zurückgewandelt und man hat somit das verschlüsselte Bild
 
 Somit könnte das Hauptprogramm folgendermaßen vorgehen:
 \begin{lstlisting}
+import sys
+
 def main():
     image = cv2.imread(sys.argv[1])
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -141,7 +143,7 @@ def main():
     decrypted_image = decrypt_image(ivs, cipher_key, encrypted_image)
     show_image_with_entropy(decrypted_image)
 \end{lstlisting}
-Der Name des Bildes wird als command-line Argument übergeben. Es wird dann eingelesen und in Grayscale konvertiert.
+Der Name des Bildes wird als Kommando-Zeilen-Argument übergeben. Es wird dann eingelesen und in Grayscale konvertiert.
 Dann wird mit dem key \lstinline{cipher_key} das Bild verschlüsselt mithilfe \lstinline{encrypt_image()} und danach
 mit demselben Schlüssel und den erhaltenen Initialisierungsvektoren mit der Funktion \lstinline{decrypt_image()} entschlüsselt.
 
@@ -377,28 +379,84 @@ diese Verfahren vorstellen.
 
 \section{Fehlerkorrektur mit Hammingcodes}
 
-\subsection{Funktionsweise}
+\subsection{Funktionsweise} \label{sec:hammingfunc}
 Ein Hammingcode kann einerseits Fehler erkennen und andererseits auch einen Fehler korrigieren.
 Dies funktioniert folgendermaßen: Einer binären Nachricht der Länge $2^m - m - 1$ wird $m$ redundante Bits
-hinzugefügt, sodass das der Code eine Länge von $2^m - 1$ hat. Die redundanten Bits sind an den $2^n$-ten Stellen positioniert.
+hinzugefügt, sodass das der Code eine Länge von $2^m - 1$ hat. Die redundanten Bits sind an den $2^n$-ten Stellen positioniert, wobei
+die linkeste Stelle mit dem MSB die erste Stelle ist.
 Sei $p_i$ das redundante Bit an der Stelle $2^{i - 1}$. Verwendet werden diese Bits als Paritätsbits, d.h. entweder Even oder Odd Parity.
 Angenommen es wird Even Parity verwendet. Dann wird der Wert eines Paritätsbit bestimmt, indem die Anzahl an 1en aller dazugehörigen Bits
 gezählt wird. Wenn diese ungerade ist, ist das Paritätsbit $1$, sonst $0$. Zu einem Paritätsbit $p_i$ gehören alle Bits an den Stellen
-(beginnend von 1), wo die Binärdarstellung der Stelle eine $1$ an der $i$-ten Stelle aufweist. Beispielsweise gehört zu dem Paritätsbit $p_1$
-jedes Bit an einer ungeraden Stelle, da ungerade Zahlen immer eine 1 an der 1. Stelle aufweisen. Wenn alle zugehörigen Bits mit dem
+(beginnend von 1), wo die Binärdarstellung der Stelle eine $1$ an der $i$-ten Stelle von rechts aufweist. Beispielsweise gehört zu dem Paritätsbit $p_1$
+jedes Bit an einer ungeraden Stelle, da ungerade Zahlen immer eine 1 an der 1. Stelle von rechts aufweisen. Wenn alle zugehörigen Bits mit dem
 Paritätsbit eine gerade Anzahl an 1en haben, dann ist die Even Parity erfüllt. \cite{hamming}
 
 Wenn ein solcher Hammingcode erstellt wurde, kann dieser verschickt werden. Dabei kann es zu Fehlern kommen, also es kommt zu ungewollten
 Bit-Flips. Anhand der Paritätsbits kann man nun feststellen, ob es zu so einem Fehler gekommen ist und bei 1-Bit Fehlern sogar ausbessern. \cite{hamming}
 
 Der Empfänger, der diesen möglicherweise fehlerhaften Code erhaltet, muss erstmal für jedes Paritätsbit überprüfen, ob die Even Parity gilt.
-Wenn nicht, dann hat der Code einen Fehler.
+Wenn nicht, dann hat der Code einen Fehler. \cite{hamming}
 
 Für die Fehlerkorrektur von einem Bit wird folgendes durchgeführt: Für jedes Paritätsbit wird die Parity berechnet. Wenn sie erfüllt ist, dann
-wird in eine neu zu konstruierende Zahl eine 0 hinzugefügt, sonst eine 1. Dies wird von links nach rechts durchgeführt. Die daraus resultierende
-Binärzahl ist die Stelle, an der der Fehler geschehen ist, somit muss man nur dieses Bit flippen, um den Fehler zu beheben.
+wird in eine neu zu konstruierende Zahl eine 0 hinzugefügt, sonst eine 1. Dies wird von rechts nach links durchgeführt. Die daraus resultierende
+Binärzahl ist die Stelle, an der der Fehler geschehen ist, somit muss man nur dieses Bit flippen, um den Fehler zu beheben. \cite{hamming}
 
 \subsection{Beispiel}
+Um dies an einem konkreten Beispiel zu demonstrieren: Angenommen man möchte die Bits 1101 übertragen. Dann bräuchte man drei redundante Paritätsbits,
+sodass der Code eine Länge von $2^3 - 1$ hat. (mit 3 redundanten Bits) Diese Paritätsbits $p_i$ müssen an den $2^{i - 1}$-ten Stellen platziert werden, also
+$p_1 p_2 1 p_3 101$. Dann müssen die Werte von den Paritätsbits gemäß der Beschreibung in Sektion \ref{sec:hammingfunc} gewählt werden.
+Der resultierende Hammingcode ist 1010101.
+
+Angenommen dieser Code erleidet an einem Fehler: Das Bit an der 6. Stelle von links wird geflipped, sodass der Code nun
+1010111 ist. Dann ist für $p_2$ und $p_3$ die Even Parity nicht mehr erfüllt. Damit man die problematische Stelle findet,
+wird in $p_3 p_2 p_1$ das $p_i$ durch 0 ersetzt, wenn die Even Parity nicht erfüllt ist, sonst 1. Somit erhaltet man die Zahl $110_2 = 6_{10}$.
+Also ist der Fehler an der 6. Stelle geschehen und muss geflipped werden. Man erhaltet also dann den reparierten Code 1010101,
+den man nun wieder gewöhnlich dekodieren kann, um 1101 zu erhalten.
+
+Dieser Prozess ist hier umgesetzt als Python Skript. Verwendet wird die Python Implementierung von Dominic Carrano, die auf
+Github\footnote{https://github.com/dominiccarrano/hamming} veröffentlicht ist. Binärzahlen werden mithilfe bitarray dargestellt:
+\begin{lstlisting}
+import hamming
+from bitarray import bitarray
+import sys
+
+def main():
+    msg = bitarray(sys.argv[1])
+    print(f"Original Bits: {msg}")
+    print()
+
+    encoded_msg = hamming.encode(msg)
+    print(f"Encoded Bits: {encoded_msg}")
+
+    decoded_msg = hamming.decode(encoded_msg)
+    print(f"Decoded Bits: {decoded_msg}")
+    print()
+
+    # simulating corruption
+    corrupt_encoded_msg = encoded_msg.copy()
+    corrupt_encoded_msg[6] = corrupt_encoded_msg[6] ^ 1
+    print(f"Corrupted encoded Bits: {corrupt_encoded_msg}")
+
+    corrupt_decoded_msg = hamming.decode(corrupt_encoded_msg)
+    print(f"Decoded Bits: {corrupt_decoded_msg}")
+\end{lstlisting}
+Es wird zuerst gemäß dem Kommando-Zeilen-Argument ein bitarray erstellt für die Binärzahl. Danach wird sie in einem
+Hammingcode umgewandelt und sofort wieder zurückgewandelt, um das Original zu erhalten. Dies simuliert einen fehlerfreien
+Transfer. Nun kann es aber zu Fehlern kommen. Daher wird im Skript ein korrupter Hammingcode erstellt, an dessen 6. Stelle
+ein Bit geflipped wird. Aber da es ein Hammingcode ist, kann beim Dekodieren dieser Fehler erkannt und korrigiert werden.
+Dies ist die Ausgabe des Programms bei der Eingabe 1101:
+\begin{lstlisting}
+Original Bits: bitarray('1101')
+
+Encoded Bits: bitarray('01010101')
+Decoded Bits: bitarray('1101')
+
+Corrupted encoded Bits: bitarray('01010111')
+Decoded Bits: bitarray('1101')
+\end{lstlisting}
+Der Grund, warum der Hammingcode eine Länge von 8 hat, ist, weil der Autor der Hammingcode Software zusätzlich
+zum Hammingcode noch ein Paritätsbit für die ganze Sequenz links einfügt. Da die Sequenz 1010101 eine even Parity hat (vier 1en),
+wird links noch zusätzlich das Paritätsbit 0 eingefügt.
 
 
 \bibliography{lit}
