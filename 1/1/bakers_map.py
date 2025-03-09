@@ -14,6 +14,8 @@ def main():
         # encrypted_image = encrypt_image(encrypted_image)
         encrypted_image = encrypt_image(encrypted_image)
         show_image_with_entropy(encrypted_image)
+        decrypted_image = decrypt_image(encrypted_image)
+        show_image_with_entropy(decrypted_image)
 
 
 # def encrypt_image_bakers_map(image):
@@ -75,14 +77,31 @@ def encrypt_image(image):
             else:
                 pixel = image[2 * x - length + y % 2][(y + length) // 2]
 
-            pixel = substitute(pixel, x, y)
+            # pixel = substitute(pixel, x, y)
             encrypted_img[x][y] = pixel
 
     return encrypted_img
 
 
-def substitute():
-    pass
+def decrypt_image(image):
+    length, _ = image.shape
+    decrypted_img = image.copy()
+
+    for x in range(length):
+        for y in range(length):
+            if x < length / 2:
+                old_x, old_y = 2 * x + y % 2, y // 2
+            else:
+                old_x, old_y = 2 * x - length + y % 2, (y + length) // 2
+
+            # pixel = substitute(pixel, x, y)
+            decrypted_img[old_x][old_y] = image[x][y]
+
+    return decrypted_img
+
+
+# def substitute(pixel, x, y):
+#     return (int(pixel) + x * y) % 256
 
 
 def show_image_with_entropy(image):
