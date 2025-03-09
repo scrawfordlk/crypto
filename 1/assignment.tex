@@ -5,10 +5,15 @@
 \maketitle
 
 \section{Implementierung der Baker's Map}
-Siehe \ref{sec:bakersmap} für eine Baker's Map Erklärung. Die gewählte Programmiersprache ist Python.
-Für Bilder wird die Library OpenCV verwendet. Der Programmcode zur Verschlüsselung ist folgender:
+Die gewählte Programmiersprache ist Python.
+Für Bilder wird die Library OpenCV verwendet. Der Programmcode zur Verschlüsselung basiert auf der in
+\cite{fridrich97} vorgestellten, generalisierte und diskretisierte Baker's Map. Man siehe Sektion
+\ref{sec:bakersmap} für eine genauere Beschreibung von der Baker's Map. Zusätzlich wird die in \cite{chaos}
+erwähnte Substitution für die Veränderung von Grauwerte einzelner Pixel angewendet. Dies is das Programmstück
+zur Verschlüsselung:
 \begin{lstlisting}
 \end{lstlisting}
+
 
 \section{Chaos-basierte Bildverschlüsselung und Entschlüsselung}
 \subsection{Motivation}
@@ -38,7 +43,7 @@ Bild bestehend aus Pixeln auf sich selber abbildet. So eine Abbildung bestimmt a
 quadratischer Bilder, sodass eine Permutation der Pixel berechnet werden kann. Anschließend wird die Abbildung auf 3 Dimensionen erweitert,
 sodass einzelne Pixel Werte modifiziert werden. Schlussendlich wird dann eine Diffusion noch angewendet als Komposition zur bestehenden
 Abbildung.
-\cite{IEEEMap}
+\cite{fridrich97}
 
 Zur Entschlüsselung wird dann die inverse Baker Map verwendet, sodass man das Ursprungsbild wieder erhaltet nach gleich vielen Iterationen.
 
@@ -59,8 +64,8 @@ wie ein Bäcker mit Teig umgeht, daher der Name. Der Schlüssel hier ist durch d
 
 Die Abbildung funktioniert folgendermaßen: Man definiere zuerst $n_1, n_2, \dots , n_k$, wobei $k$ die Anzahl der aufgeteilten Teile entspricht.
 Dabei muss $\forall i \in \{1, 2, \dots, k\} : n_i | N$ und $\sum_{i = 1}^{k} n_i = N$ gelten. Sei weiter $N_i \coloneq \sum_{j = 1}^{i} n_j$ und $q_i \coloneq N/n_i$.
-Betrachte nun ein Pixel ($r$, $s$) mit $N_{i - 1} \leq r < N_i$ und $0 \leq s < N$. Dieses Pixel wird abgebildet auf:
-$$B(r, s) =  (q_i(r - N_i) + (s \text{ mod } q_i), \frac{s - (s \text{ mod } q_i)}{q_i + N_i})$$
+Betrachte nun ein Pixel ($r$, $s$) mit $N_{i - 1} \leq r < N_i$ und $0 \leq s < N$. Dieses Pixel wird abgebildet auf: \cite{fridrich97}
+$$B(r, s) =  (q_i(r - N_i) + (s \text{ mod } q_i), \frac{s - (s \text{ mod } q_i)}{q_i} + N_i)$$
 Dieser Algorithmus ist verantwortlich für eine Permutation der Pixel. Um die Grauwerte der Pixel auch zu verändern, kann ein Substitutionsschritt
 eingeführt werden, der den Grauwert $g_{rs}$ eines Pixels beim Abbilden ändert auf $h(r, s, g_{rs})$, wobei $h$ folgende Funktion ist:
 $$h(r, s, g_{rs}) = (g_{rs} + r \cdot s) \text{ mod } L$$
