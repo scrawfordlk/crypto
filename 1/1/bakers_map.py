@@ -77,7 +77,7 @@ def encrypt_image(image):
             else:
                 pixel = image[2 * x - length + y % 2][(y + length) // 2]
 
-            # pixel = substitute(pixel, x, y)
+            pixel = substitute(pixel, x, y)
             encrypted_img[x][y] = pixel
 
     return encrypted_img
@@ -94,14 +94,18 @@ def decrypt_image(image):
             else:
                 old_x, old_y = 2 * x - length + y % 2, (y + length) // 2
 
-            # pixel = substitute(pixel, x, y)
-            decrypted_img[old_x][old_y] = image[x][y]
+            pixel = unsubstitute(image[x][y], x, y)
+            decrypted_img[old_x][old_y] = pixel
 
     return decrypted_img
 
 
-# def substitute(pixel, x, y):
-#     return (int(pixel) + x * y) % 256
+def substitute(pixel, x, y):
+    return (int(pixel) + x * y) % 256
+
+
+def unsubstitute(pixel, x, y):
+    return (int(pixel) - x * y) % 256
 
 
 def show_image_with_entropy(image):
