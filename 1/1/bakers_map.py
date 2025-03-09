@@ -9,61 +9,89 @@ def main():
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     show_image_with_entropy(gray_image)
 
+    key = b"Tis a 16byte key"
+
     encrypted_image = gray_image.copy()
     while True:
         # encrypted_image = encrypt_image(encrypted_image)
-        encrypted_image = encrypt_image(encrypted_image)
+        encrypted_image, n = encrypt_image_bakers_map(key, encrypted_image)
         show_image_with_entropy(encrypted_image)
-        decrypted_image = decrypt_image(encrypted_image)
+        decrypted_image, n = decrypt_image_bakers_map(key, encrypted_image)
+        print("DECRYPT")
         show_image_with_entropy(decrypted_image)
 
 
-# def encrypt_image_bakers_map(image):
-#     N, _ = image.shape
-#     n = get_n(image)
-#     encrypted_img = image.copy()
-#
-#     for r in range(N):
-#         for s in range(N):
-#             for i in range(len(n)):
-#                 if n[i] <= r and r < n[i + 1]:
-#                     q_i = N // n[i]
-#                     N_i = calc_N_i(n, i)
-#                     print(N_i)
-#                     mapped_x = int(q_i * (r - N_i) + (s % q_i))
-#                     mapped_y = int((s - (s % q_i)) / (q_i + N_i))
-#                     print(f"x: {mapped_x}, y: {mapped_y}")
-#                     encrypted_img[r][s] = image[mapped_x][mapped_y]
-#                     print("CHANGE")
-#                     break
-#
-#     return encrypted_img, n
-#
-#
-# # per Definition of N, n_i and N_i
-# def get_n(image) -> list:
-#     # N, _ = image.shape
-#     # N_i = 0
-#     # n = []
-#     #
-#     # while N_i < N:
-#     #     n_i = 2 ** random.randint(1, 9)  # divides a 512x512 image
-#     #     if N_i + n_i > N:
-#     #         n_i = N - N_i  #  assign rest
-#     #     N_i += n_i
-#     #     n.append(n_i)
-#     #
-#     # print(f"The n's are: {n}")
-#     return [128 + 256 + 128]
-#
-#
-# def calc_N_i(n, i):
-#     sum = 0  # N_0 = 0
-#     for j in range(i):
-#         sum += n[j]
-#     print("N_i is: " + str(sum))
-#     return sum
-#
+def encrypt_image_bakers_map(key, image):
+    N, _ = image.shape
+    encrypted_img = image.copy()
+    n = get_n(image)
+
+    for x in range(N):
+        for y in range(N):
+            _map_pixel(image, encrypted_img, (x, y), n)
+
+    return encrypted_img, n
+
+
+def _map_pixel(src_image, target_img, pixel_coords: tuple[int, int], n: list):
+    N, _ = src_image.shape
+    r, s = pixel_coords
+
+    N_i = 0  # N_0 == 0
+    for i in range(len(n)):
+        if N_i <= r and r < N_i + n[i]:
+            q_i = N // n[i]
+            mapped_x = q_i * (r - N_i) + (s % q_i)
+            mapped_y = ((s - (s % q_i)) // q_i) + N_i
+            target_img[r][s] = src_image[mapped_x][mapped_y]
+            return
+
+        N_i += n[i]  # N_i = n_1 + ... + n_i
+
+
+def decrypt_image_bakers_map(key, image):
+    N, _ = image.shape
+    decrypted_image = image.copy()
+    n = get_n(image)
+
+    for x in range(N):
+        for y in range(N):
+            _map_pixel(image, decrypted_image, (x, y), n)
+
+    return decrypted_image, n
+
+
+def _unmap_pixel(src_image, target_img, pixel_coords: tuple[int, int], n: list):
+    N, _ = src_image.shape
+    r, s = pixel_coords
+
+    N_i = 0  # N_0 == 0
+    for i in range(len(n)):
+        if N_i <= r and r < N_i + n[i]:
+            q_i = N // n[i]
+            mapped_x = q_i * (r - N_i) + (s % q_i)
+            mapped_y = ((s - (s % q_i)) // q_i) + N_i
+            target_img[r][s] = src_image[mapped_x][mapped_y]
+            return
+
+        N_i += n[i]  # N_i = n_1 + ... + n_i
+
+
+# per Definition of N, n_i and N_i
+def get_n(image):
+    # N, _ = image.shape
+    # N_i = 0
+    # n = []
+    #
+    # while N_i < N:
+    #     n_i = 2 ** random.randint(1, 9)  # divides a 512x512 image
+    #     if N_i + n_i > N and N % n_i == 0:
+    #         n_i = N - N_i  #  assign rest
+    #     N_i += n_i
+    #     n.append(n_i)
+    #
+    # print(f"The n's are: {n}")
+    return [256, 256]  # need to be sorted?
 
 
 def encrypt_image(image):
@@ -90,12 +118,12 @@ def decrypt_image(image):
     for x in range(length):
         for y in range(length):
             if x < length / 2:
-                old_x, old_y = 2 * x + y % 2, y // 2
+                mapped_x, mapped_y = 2 * x + y % 2, y // 2
             else:
-                old_x, old_y = 2 * x - length + y % 2, (y + length) // 2
+                mapped_x, mapped_y = 2 * x - length + y % 2, (y + length) // 2
 
             pixel = unsubstitute(image[x][y], x, y)
-            decrypted_img[old_x][old_y] = pixel
+            decrypted_img[mapped_x][mapped_y] = pixel
 
     return decrypted_img
 
