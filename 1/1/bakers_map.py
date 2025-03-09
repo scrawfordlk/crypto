@@ -43,7 +43,9 @@ def _map_pixel(src_image, target_img, pixel_coords: tuple[int, int], n: list):
             q_i = N // n[i]
             mapped_r = q_i * (r - N_i) + (s % q_i)
             mapped_s = ((s - (s % q_i)) // q_i) + N_i
-            target_img[r][s] = src_image[mapped_r][mapped_s]
+            pixel = src_image[mapped_r][mapped_s]
+            # target_img[r][s] = substitute(pixel, r, s)
+            target_img[r][s] = pixel
             return
 
         N_i += n[i]  # N_i = n_1 + ... + n_i
@@ -56,18 +58,7 @@ def decrypt_image_bakers_map(key, image):
 
     for x in range(N):
         for y in range(N):
-            # _map_pixel(image, decrypted    N, _ = src_image.shape
-            r, s = x, y
-
-            N_i = 0  # N_0 == 0
-            for i in range(len(n)):
-                if N_i <= r and r < N_i + n[i]:
-                    q_i = N // n[i]
-                    mapped_r = q_i * (r - N_i) + (s % q_i)
-                    mapped_s = ((s - (s % q_i)) // q_i) + N_i
-                    decrypted_image[mapped_r][mapped_s] = image[r][s]
-
-                N_i += n[i]  # N_i = n_1 + ... + n_i_image, (x, y), n)
+            _unmap_pixel(image, decrypted_image, (x, y), n)
 
     return decrypted_image, n
 
@@ -82,13 +73,14 @@ def _unmap_pixel(src_image, target_img, pixel_coords: tuple[int, int], n: list):
             q_i = N // n[i]
             mapped_r = q_i * (r - N_i) + (s % q_i)
             mapped_s = ((s - (s % q_i)) // q_i) + N_i
-            target_img[r][s] = src_image[mapped_r][mapped_s]
+            pixel = src_image[r][s]
+            # target_img[mapped_r][mapped_s] = unsubstitute(pixel, r, s)
+            target_img[mapped_r][mapped_s] = pixel
             return
 
-        N_i += n[i]  # N_i = n_1 + ... + n_i
+        N_i += n[i]  # N_i = n_1 + ... + n_i_image, (x, y), n)
 
 
-# per Definition of N, n_i and N_i
 def get_n(image):
     # N, _ = image.shape
     # N_i = 0
@@ -105,7 +97,7 @@ def get_n(image):
     return [256, 256]  # need to be sorted?
 
 
-def encrypt_image(image):
+def _old_encrypt_image(image):
     length, _ = image.shape
     encrypted_img = image.copy()
 
@@ -122,7 +114,7 @@ def encrypt_image(image):
     return encrypted_img
 
 
-def decrypt_image(image):
+def _old_decrypt_image(image):
     length, _ = image.shape
     decrypted_img = image.copy()
 
