@@ -30,7 +30,7 @@ def demo():
     i = 0
     encrypted_image = gray_image.copy()
     while True:
-        encrypted_image = encrypt_image_bakers_map(encrypted_image, key[0])
+        encrypted_image = _encrypt_image_bakers_map(encrypted_image, key[0])
         i += 1
         print(f"{i}th iteration")
         show_image_with_entropy(encrypted_image)
@@ -41,12 +41,12 @@ def encrypt_image(key: [list, int], image):
     encrypted_image = image.copy()
 
     for i in range(iterations):
-        encrypted_image = encrypt_image_bakers_map(encrypted_image, n)
+        encrypted_image = _encrypt_image_bakers_map(encrypted_image, n)
 
     return encrypted_image
 
 
-def encrypt_image_bakers_map(image, n: list):
+def _encrypt_image_bakers_map(image, n: list):
     N, _ = image.shape
     encrypted_img = image.copy()
 
@@ -61,7 +61,7 @@ def _map_pixel(src_image, target_img, pixel_coords: tuple[int, int], n: list):
     N, _ = src_image.shape
     r, s = pixel_coords
 
-    N_i = 0  # N_0 == 0
+    N_i = 0  # N_0 = 0
     for i in range(len(n)):
         if N_i <= r and r < N_i + n[i]:
             q_i = N // n[i]
@@ -79,12 +79,12 @@ def decrypt_image(key: [list, int], image):
     decrypted_image = image.copy()
 
     for i in range(iterations):
-        decrypted_image = decrypt_image_bakers_map(decrypted_image, n)
+        decrypted_image = _decrypt_image_bakers_map(decrypted_image, n)
 
     return decrypted_image
 
 
-def decrypt_image_bakers_map(image, n: list):
+def _decrypt_image_bakers_map(image, n: list):
     N, _ = image.shape
     decrypted_image = image.copy()
 
