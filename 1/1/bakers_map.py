@@ -2,6 +2,8 @@
 import cv2
 import skimage.measure
 import sys
+import time
+import matplotlib.pyplot as plt
 
 
 def main():
@@ -19,21 +21,44 @@ def main():
     show_image_with_entropy(decrypted_image)
 
 
+def plot_results(times, entropies, file_name):
+    plt.plot(times, entropies)
+    plt.xlabel("Iterationen")
+    plt.ylabel("Entropie")
+    plt.savefig(file_name + ".pdf", format="pdf", bbox_inches="tight")
+    plt.show()
+
+
 def demo():
+    start = time.time()
     image = cv2.imread(sys.argv[1])
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    show_image_with_entropy(gray_image)
+    # show_image_with_entropy(gray_image)
+
+    entropy = measure_entropy(gray_image)
+    print(f"entropy: {entropy}")
 
     # 1 splits, 2 parts of length 256, 25 iterations
     key = ([256, 256], 5)
 
+    iterations = []
+    entropies = []
+
     i = 0
     encrypted_image = gray_image.copy()
-    while True:
+    while i < 30:
         encrypted_image = _encrypt_image_bakers_map(encrypted_image, key[0])
         i += 1
-        print(f"{i}th iteration")
-        show_image_with_entropy(encrypted_image)
+        iterations.append(i)
+        end = time.time()
+        entropy = measure_entropy(encrypted_image)
+        entropies.append(entropy)
+        print(f"{i}th iteration, time elapsed: {end - start}, entropy: {entropy}")
+        store_image(
+            "out/" + str(i) + "_" + str(entropy) + "_" + sys.argv[1], encrypted_image
+        )
+        # show_image_with_entropy(encrypted_image)
+    plot_results(iterations, entropies, "out/" + sys.argv[1][:-4])
 
 
 def encrypt_image(key: [list, int], image):
