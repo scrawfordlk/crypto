@@ -127,7 +127,7 @@ def main():
     show_image_with_entropy(gray_image)
 
     # 1 splits, 2 parts of length 256, 25 iterations
-    key = ([256, 256], 10)
+    key = ([256, 256], 20)
 
     encrypted_image = encrypt_image(key, gray_image)
     show_image_with_entropy(encrypted_image)
