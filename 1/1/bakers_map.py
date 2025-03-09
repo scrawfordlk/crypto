@@ -41,9 +41,9 @@ def _map_pixel(src_image, target_img, pixel_coords: tuple[int, int], n: list):
     for i in range(len(n)):
         if N_i <= r and r < N_i + n[i]:
             q_i = N // n[i]
-            mapped_x = q_i * (r - N_i) + (s % q_i)
-            mapped_y = ((s - (s % q_i)) // q_i) + N_i
-            target_img[r][s] = src_image[mapped_x][mapped_y]
+            mapped_r = q_i * (r - N_i) + (s % q_i)
+            mapped_s = ((s - (s % q_i)) // q_i) + N_i
+            target_img[r][s] = src_image[mapped_r][mapped_s]
             return
 
         N_i += n[i]  # N_i = n_1 + ... + n_i
@@ -56,7 +56,18 @@ def decrypt_image_bakers_map(key, image):
 
     for x in range(N):
         for y in range(N):
-            _map_pixel(image, decrypted_image, (x, y), n)
+            # _map_pixel(image, decrypted    N, _ = src_image.shape
+            r, s = x, y
+
+            N_i = 0  # N_0 == 0
+            for i in range(len(n)):
+                if N_i <= r and r < N_i + n[i]:
+                    q_i = N // n[i]
+                    mapped_r = q_i * (r - N_i) + (s % q_i)
+                    mapped_s = ((s - (s % q_i)) // q_i) + N_i
+                    decrypted_image[mapped_r][mapped_s] = image[r][s]
+
+                N_i += n[i]  # N_i = n_1 + ... + n_i_image, (x, y), n)
 
     return decrypted_image, n
 
@@ -69,9 +80,9 @@ def _unmap_pixel(src_image, target_img, pixel_coords: tuple[int, int], n: list):
     for i in range(len(n)):
         if N_i <= r and r < N_i + n[i]:
             q_i = N // n[i]
-            mapped_x = q_i * (r - N_i) + (s % q_i)
-            mapped_y = ((s - (s % q_i)) // q_i) + N_i
-            target_img[r][s] = src_image[mapped_x][mapped_y]
+            mapped_r = q_i * (r - N_i) + (s % q_i)
+            mapped_s = ((s - (s % q_i)) // q_i) + N_i
+            target_img[r][s] = src_image[mapped_r][mapped_s]
             return
 
         N_i += n[i]  # N_i = n_1 + ... + n_i
