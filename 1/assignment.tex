@@ -9,10 +9,51 @@ Die gewählte Programmiersprache ist Python.
 Für Bilder wird die Library OpenCV verwendet. Der Programmcode zur Verschlüsselung basiert auf der in
 \cite{fridrich97} vorgestellten, generalisierte und diskretisierte Baker's Map. Man siehe Sektion
 \ref{sec:bakersmap} für eine genauere Beschreibung von der Baker's Map. Zusätzlich wird die in \cite{chaos}
-erwähnte Substitution für die Veränderung von Grauwerte einzelner Pixel angewendet. Dies is das Programmstück
-zur Verschlüsselung:
+erwähnte Substitution für die Veränderung von Grauwerten einzelner Pixel angewendet. Das Programmstück
+zur Verschlüsselung ist dieses hier:
 \begin{lstlisting}
+def encrypt_image(key: [list, int], image):
+    n, iterations = key
+    encrypted_image = image.copy()
+
+    for i in range(iterations):
+        encrypted_image = _encrypt_image_bakers_map(encrypted_image, n)
+
+    return encrypted_image
+
+
+def _encrypt_image_bakers_map(image, n: list):
+    N, _ = image.shape
+    encrypted_img = image.copy()
+
+    for x in range(N):
+        for y in range(N):
+            _map_pixel(image, encrypted_img, (x, y), n)
+
+    return encrypted_img
+
+
+def _map_pixel(src_image, target_img, pixel_coords: tuple[int, int], n: list):
+    N, _ = src_image.shape
+    r, s = pixel_coords
+
+    N_i = 0  # N_0 = 0
+    for i in range(len(n)):
+        if N_i <= r and r < N_i + n[i]:
+            q_i = N // n[i]
+            mapped_r = q_i * (r - N_i) + (s % q_i)
+            mapped_s = ((s - (s % q_i)) // q_i) + N_i
+            pixel = src_image[mapped_r][mapped_s]
+            target_img[r][s] = substitute(pixel, r, s)
+            return
+
+        N_i += n[i]  # N_i = n_1 + ... + n_i
 \end{lstlisting}
+In \lstinline{encrypt_image()} wird anhand des Schlüssels $n_1, \dots, n_k$ und die Anzahl an Iterationen bestimmt.
+Dann wird die Baker's Map entsprechend oft durchgeführt. In \\\lstinline{encrypt_image_bakers_map()} wird dann
+pro Pixel $(x, y)$ eine Abbildung durchgeführt. Diese Abbildung übernimmt \lstinline{_map_pixel()}. Dort
+wird so wie in \cite{fridrich97} beschrieben die Abbildung durchgeführt. Zusätzlich wird der Grauwert des Pixels bei
+der Abbildung mit \lstinline{substitute()} substituiert, die der Substitution in \cite{chaos} entspricht.
 
 
 \section{Chaos-basierte Bildverschlüsselung und Entschlüsselung}
