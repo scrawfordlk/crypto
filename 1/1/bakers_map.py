@@ -6,61 +6,6 @@ import time
 import matplotlib.pyplot as plt
 
 
-def main():
-    image = cv2.imread(sys.argv[1])
-    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    show_image_with_entropy(gray_image)
-
-    # 1 splits, 2 parts of length 256, 25 iterations
-    key = ([256, 256], 10)
-
-    encrypted_image = encrypt_image(key, gray_image)
-    show_image_with_entropy(encrypted_image)
-
-    decrypted_image = decrypt_image(key, encrypted_image)
-    show_image_with_entropy(decrypted_image)
-
-
-def plot_results(times, entropies, file_name):
-    plt.plot(times, entropies)
-    plt.xlabel("Iterationen")
-    plt.ylabel("Entropie")
-    plt.savefig(file_name + ".pdf", format="pdf", bbox_inches="tight")
-    plt.show()
-
-
-def demo():
-    start = time.time()
-    image = cv2.imread(sys.argv[1])
-    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # show_image_with_entropy(gray_image)
-
-    entropy = measure_entropy(gray_image)
-    print(f"entropy: {entropy}")
-
-    # 1 splits, 2 parts of length 256, 25 iterations
-    key = ([256, 256], 5)
-
-    iterations = []
-    entropies = []
-
-    i = 0
-    encrypted_image = gray_image.copy()
-    while i < 30:
-        encrypted_image = _encrypt_image_bakers_map(encrypted_image, key[0])
-        i += 1
-        iterations.append(i)
-        end = time.time()
-        entropy = measure_entropy(encrypted_image)
-        entropies.append(entropy)
-        print(f"{i}th iteration, time elapsed: {end - start}, entropy: {entropy}")
-        store_image(
-            "out/" + str(i) + "_" + str(entropy) + "_" + sys.argv[1], encrypted_image
-        )
-        # show_image_with_entropy(encrypted_image)
-    plot_results(iterations, entropies, "out/" + sys.argv[1][:-4])
-
-
 def encrypt_image(key: [list, int], image):
     n, iterations = key
     encrypted_image = image.copy()
@@ -145,40 +90,6 @@ def unsubstitute(pixel, x, y):
     return (int(pixel) - x * y) % 256
 
 
-def _old_encrypt_image(image):
-    length, _ = image.shape
-    encrypted_img = image.copy()
-
-    for x in range(length):
-        for y in range(length):
-            if x < length / 2:
-                pixel = image[2 * x + y % 2][y // 2]
-            else:
-                pixel = image[2 * x - length + y % 2][(y + length) // 2]
-
-            pixel = substitute(pixel, x, y)
-            encrypted_img[x][y] = pixel
-
-    return encrypted_img
-
-
-def _old_decrypt_image(image):
-    length, _ = image.shape
-    decrypted_img = image.copy()
-
-    for x in range(length):
-        for y in range(length):
-            if x < length / 2:
-                mapped_x, mapped_y = 2 * x + y % 2, y // 2
-            else:
-                mapped_x, mapped_y = 2 * x - length + y % 2, (y + length) // 2
-
-            pixel = unsubstitute(image[x][y], x, y)
-            decrypted_img[mapped_x][mapped_y] = pixel
-
-    return decrypted_img
-
-
 def show_image_with_entropy(image):
     print_entropy(image)
     cv2.imshow("Image", image)
@@ -202,9 +113,85 @@ def store_image(file_name, image):
     cv2.imwrite(file_name, image)
 
 
+def plot_results(iterations, entropies, file_name):
+    plt.plot(iterations, entropies)
+    plt.xlabel("Iterationen")
+    plt.ylabel("Entropie")
+    plt.savefig(file_name + ".pdf", format="pdf", bbox_inches="tight")
+    plt.show()
+
+
+def main():
+    image = cv2.imread(sys.argv[2])
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    show_image_with_entropy(gray_image)
+
+    # 1 splits, 2 parts of length 256, 25 iterations
+    key = ([256, 256], 10)
+
+    encrypted_image = encrypt_image(key, gray_image)
+    show_image_with_entropy(encrypted_image)
+
+    decrypted_image = decrypt_image(key, encrypted_image)
+    show_image_with_entropy(decrypted_image)
+
+
+def demo():
+    image = cv2.imread(sys.argv[2])
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    show_image_with_entropy(gray_image)
+
+    entropy = measure_entropy(gray_image)
+    print(f"entropy: {entropy}")
+
+    # 1 splits, 2 parts of length 256, 25 iterations
+    key = ([256, 256], 5)
+
+    i = 0
+    encrypted_image = gray_image.copy()
+    while True:
+        i += 1
+        encrypted_image = _encrypt_image_bakers_map(encrypted_image, key[0])
+        print(f"{i}th iteration")
+        show_image_with_entropy(encrypted_image)
+
+
+def plot_demo():
+    start = time.time()
+    image = cv2.imread(sys.argv[2])
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    entropy = measure_entropy(gray_image)
+    print(f"Entropy: {entropy}")
+
+    # 1 splits, 2 parts of length 256, 25 iterations
+    key = ([256, 256], 30)
+
+    iterations = []
+    entropies = []
+
+    i = 0
+    encrypted_image = gray_image.copy()
+    while i < key[1]:
+        encrypted_image = _encrypt_image_bakers_map(encrypted_image, key[0])
+        i += 1
+        iterations.append(i)
+        end = time.time()
+        entropy = measure_entropy(encrypted_image)
+        entropies.append(entropy)
+        print(f"{i}th iteration, time elapsed: {end - start}, entropy: {entropy}")
+        # store_image(f"out/{i}_{entropy}_{sys.argv[2]}", encrypted_image)
+
+    plot_results(iterations, entropies, "out/" + sys.argv[2][:-4])
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("need args")
+    if len(sys.argv) != 3:
+        print("<program> < main | demo | plot> <file_name>")
         exit()
     else:
-        demo()
+        if sys.argv[1] == "main":
+            main()
+        elif sys.argv[1] == "plot":
+            plot_demo()
+        else:
+            demo()
