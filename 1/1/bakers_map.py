@@ -9,28 +9,52 @@ def main():
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     show_image_with_entropy(gray_image)
 
-    key = b"Tis a 16byte key"
+    # 1 splits, 2 parts of length 256, 25 iterations
+    key = ([256, 256], 5)
 
+    encrypted_image = encrypt_image(key, gray_image)
+    show_image_with_entropy(encrypted_image)
+
+    decrypted_image = decrypt_image(key, encrypted_image)
+    show_image_with_entropy(decrypted_image)
+
+
+def demo():
+    image = cv2.imread(sys.argv[1])
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    show_image_with_entropy(gray_image)
+
+    # 1 splits, 2 parts of length 256, 25 iterations
+    key = ([256, 256], 5)
+
+    i = 0
     encrypted_image = gray_image.copy()
     while True:
-        # encrypted_image = encrypt_image(encrypted_image)
-        encrypted_image, n = encrypt_image_bakers_map(key, encrypted_image)
+        encrypted_image = encrypt_image_bakers_map(encrypted_image, key[0])
+        i += 1
+        print(f"{i}th iteration")
         show_image_with_entropy(encrypted_image)
-        decrypted_image, n = decrypt_image_bakers_map(key, encrypted_image)
-        print("DECRYPT")
-        show_image_with_entropy(decrypted_image)
 
 
-def encrypt_image_bakers_map(key, image):
+def encrypt_image(key: [list, int], image):
+    n, iterations = key
+    encrypted_image = image.copy()
+
+    for i in range(iterations):
+        encrypted_image = encrypt_image_bakers_map(encrypted_image, n)
+
+    return encrypted_image
+
+
+def encrypt_image_bakers_map(image, n: list):
     N, _ = image.shape
     encrypted_img = image.copy()
-    n = get_n(image)
 
     for x in range(N):
         for y in range(N):
             _map_pixel(image, encrypted_img, (x, y), n)
 
-    return encrypted_img, n
+    return encrypted_img
 
 
 def _map_pixel(src_image, target_img, pixel_coords: tuple[int, int], n: list):
@@ -51,16 +75,25 @@ def _map_pixel(src_image, target_img, pixel_coords: tuple[int, int], n: list):
         N_i += n[i]  # N_i = n_1 + ... + n_i
 
 
-def decrypt_image_bakers_map(key, image):
+def decrypt_image(key: [list, int], image):
+    n, iterations = key
+    decrypted_image = image.copy()
+
+    for i in range(iterations):
+        decrypted_image = decrypt_image_bakers_map(decrypted_image, n)
+
+    return decrypted_image
+
+
+def decrypt_image_bakers_map(image, n: list):
     N, _ = image.shape
     decrypted_image = image.copy()
-    n = get_n(image)
 
     for x in range(N):
         for y in range(N):
             _unmap_pixel(image, decrypted_image, (x, y), n)
 
-    return decrypted_image, n
+    return decrypted_image
 
 
 def _unmap_pixel(src_image, target_img, pixel_coords: tuple[int, int], n: list):
@@ -81,20 +114,12 @@ def _unmap_pixel(src_image, target_img, pixel_coords: tuple[int, int], n: list):
         N_i += n[i]  # N_i = n_1 + ... + n_i_image, (x, y), n)
 
 
-def get_n(image):
-    # N, _ = image.shape
-    # N_i = 0
-    # n = []
-    #
-    # while N_i < N:
-    #     n_i = 2 ** random.randint(1, 9)  # divides a 512x512 image
-    #     if N_i + n_i > N and N % n_i == 0:
-    #         n_i = N - N_i  #  assign rest
-    #     N_i += n_i
-    #     n.append(n_i)
-    #
-    # print(f"The n's are: {n}")
-    return [256, 256]  # need to be sorted?
+def substitute(pixel, x, y):
+    return (int(pixel) + x * y) % 256
+
+
+def unsubstitute(pixel, x, y):
+    return (int(pixel) - x * y) % 256
 
 
 def _old_encrypt_image(image):
@@ -131,14 +156,6 @@ def _old_decrypt_image(image):
     return decrypted_img
 
 
-def substitute(pixel, x, y):
-    return (int(pixel) + x * y) % 256
-
-
-def unsubstitute(pixel, x, y):
-    return (int(pixel) - x * y) % 256
-
-
 def show_image_with_entropy(image):
     print_entropy(image)
     cv2.imshow("Image", image)
@@ -164,6 +181,7 @@ def store_image(file_name, image):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
+        print("need args")
         exit()
     else:
-        main()
+        demo()
