@@ -10,7 +10,7 @@ def main():
     show_image_with_entropy(gray_image)
 
     # 1 splits, 2 parts of length 256, 25 iterations
-    key = ([256, 256], 5)
+    key = ([256, 256], 10)
 
     encrypted_image = encrypt_image(key, gray_image)
     show_image_with_entropy(encrypted_image)
@@ -68,8 +68,7 @@ def _map_pixel(src_image, target_img, pixel_coords: tuple[int, int], n: list):
             mapped_r = q_i * (r - N_i) + (s % q_i)
             mapped_s = ((s - (s % q_i)) // q_i) + N_i
             pixel = src_image[mapped_r][mapped_s]
-            # target_img[r][s] = substitute(pixel, r, s)
-            target_img[r][s] = pixel
+            target_img[r][s] = substitute(pixel, r, s)
             return
 
         N_i += n[i]  # N_i = n_1 + ... + n_i
@@ -107,8 +106,7 @@ def _unmap_pixel(src_image, target_img, pixel_coords: tuple[int, int], n: list):
             mapped_r = q_i * (r - N_i) + (s % q_i)
             mapped_s = ((s - (s % q_i)) // q_i) + N_i
             pixel = src_image[r][s]
-            # target_img[mapped_r][mapped_s] = unsubstitute(pixel, r, s)
-            target_img[mapped_r][mapped_s] = pixel
+            target_img[mapped_r][mapped_s] = unsubstitute(pixel, r, s)
             return
 
         N_i += n[i]  # N_i = n_1 + ... + n_i_image, (x, y), n)
